@@ -11,8 +11,11 @@ const TableComponent = ({data}) => {
           <tr>
           <th className="px-6 py-3">idx</th>
             {
-                Object.keys(data[0]).map((dataKey)=>
-                  (<th className="px-6 py-3">{dataKey}</th>))
+                Object.keys(data[0]).map((dataKey)=>{
+                  if(dataKey !== "_id" || dataKey !== "__v"){
+                    return (<th className="px-6 py-3">{dataKey}</th>)
+                  }
+                })
             }
             <th className="px-6 py-3">Action</th>
           </tr>

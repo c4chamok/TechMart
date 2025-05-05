@@ -61,8 +61,33 @@ app.post("/api/product", async (req, res)=>{
 })
 
 app.get("/api/product", async (req, res)=>{
-    const products = await ProductModel.find().select({ _id: 0, createdAt: 0, updatedAt: 0, __v: 0});
+    const { pid } = req.query;
+    const query = !!pid ? { _id: pid} : {};
+    const products = await ProductModel.find(query).select({ createdAt: 0, updatedAt: 0, __v: 0});
+    if(!!pid){
+        return res.status(201).send({ success: true, products });
+    }
     res.status(201).send({ success: true, products });
+});
+
+app.post("/api/selected-products", async (req, res)=>{
+    const { pidList } = req.body;
+    const query = { _id: { $in: pidList } };
+    const products = await ProductModel.find(query).select({ createdAt: 0, updatedAt: 0, __v: 0});
+    res.status(201).send({ success: true, products });
+});
+
+app.post("/api/make-order", async (req, res)=>{
+    const { cart } = req.body;
+    console.log(cart);
+    const pidList = cart.map((item) => item.prodId);
+    const query = { _id: { $in: pidList } };
+    const productsWithPrice = await ProductModel.find(query).select({ _id: 1, price: 1 });
+    const payTotal = cart.reduce((total, item)=>{
+        const itemPrice = productsWithPrice.filter((prod)=>prod?._id === item?.prodId);
+        return item.qty*itemPrice + total;
+    },0)
+    res.status(201).send({ success: true, payTotal });
 })
 
 app.get("/api/seedproduct", async (req, res)=>{

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
 import ProductCard from '../../components/ProductCard/ProductCard';
-import Navbar from '../../components/Navbar/Navbar';
+import States from '../../Store/states';
 
 const Home = () => {
     const [allProducts, setAllProducts] = useState([]);
     const axiosPublic = useAxiosPublic();
+    const { cart } = States();
+    console.log(cart);
 
     const fetchAllProducts = async () => {
         const { data } = await axiosPublic("/api/product");
@@ -19,7 +21,6 @@ const Home = () => {
 
     return (
         <div className='flex flex-col items-center '>
-            <Navbar/>
            <div className='m-3 w-3/4 grid grid-cols-3 gap-2'>
                 {
                     allProducts.map((prod, idx)=><ProductCard key={idx} product={prod}/>)

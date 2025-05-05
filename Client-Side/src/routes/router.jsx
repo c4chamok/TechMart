@@ -4,19 +4,31 @@ import SignUpPage from "../pages/SignUpPage/SignUpPage";
 import LoginPage from "../pages/LoginPage/LoginPage";
 import DashboardLayouts from "../Layouts/DashboardLayouts/DashboardLayouts";
 import ProductsPage from "../pages/ProductsPage/ProductsPage";
+import MainLayouts from "../Layouts/MainLayouts/MainLayouts";
+import MyCart from "../pages/MyCart/MyCart";
 
 export const router = createBrowserRouter([
     {
         path: "",
-        element: <Home/>
-    },
-    {
-        path: "signup",
-        element: <SignUpPage/>
-    },
-    {
-        path: "login",
-        element: <LoginPage/>
+        element: <MainLayouts/>,
+        children: [
+            {
+                path: "",
+                element: <Home/>
+            },
+            {
+                path: "signup",
+                element: <SignUpPage/>
+            },
+            {
+                path: "login",
+                element: <LoginPage/>
+            },
+            {
+                path: "my-cart",
+                element: <MyCart/>
+            },
+        ]
     },
     {
         path: "dashboard",
