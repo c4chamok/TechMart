@@ -6,6 +6,7 @@ import DashboardLayouts from "../Layouts/DashboardLayouts/DashboardLayouts";
 import ProductsPage from "../pages/ProductsPage/ProductsPage";
 import MainLayouts from "../Layouts/MainLayouts/MainLayouts";
 import MyCart from "../pages/MyCart/MyCart";
+import OrdersPage from "../pages/OrdersPage/OrdersPage";
 
 export const router = createBrowserRouter([
     {
@@ -52,7 +53,7 @@ export const router = createBrowserRouter([
             },
             {
                 path:"orders",
-                element: <h2 className="text-5xl ">this is All orders page</h2>
+                element: <OrdersPage/>
             },
         ]
     },

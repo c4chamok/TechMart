@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import States from '../../Store/states';
+import useZustStates from '../../Store/useZustStates';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
 import { FaMinus, FaPlus } from 'react-icons/fa';
 import ConfirmModal from '../../components/ConfirmModal/ConfirmModal ';
+import { toast } from 'react-toastify';
 
 const MyCart = () => {
-    const { cart, addToCart } = States();
+    const { cart, addToCart, emptyCart } = useZustStates();
     const [products, setProducts] = useState([]);
     const axiosPublic = useAxiosPublic();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +19,12 @@ const MyCart = () => {
     };
 
     useEffect(() => {
-        if (pidList.length > 0) fetchProductsByIds();
+        if (pidList.length > 0) {
+            fetchProductsByIds();
+        }else{
+            setProducts([]);
+        }
+
     }, [cart]);
 
     const getQuantity = (id) => {
@@ -35,9 +41,11 @@ const MyCart = () => {
             .toFixed(2);
     };
 
-    const proceedToPay = async (params) => {
-        const {data} = await axiosPublic.post("/api/make-order", cart)
-        console.log(data);
+    const proceedToPay = async () => {
+        const token = localStorage.getItem("access-token")
+        const { data } = await axiosPublic.post("/api/make-order", { cart }, { headers: { authorization: `bearer ${token}` } });
+        emptyCart();
+        toast.success("Payment successful", { position: "top-right" })
     }
 
     return (
@@ -45,7 +53,7 @@ const MyCart = () => {
             <h2 className="text-2xl font-bold mb-6 text-center">🛒 My Cart</h2>
             <ConfirmModal
                 isOpen={isModalOpen}
-                onClose={()=>setIsModalOpen(false)}
+                onClose={() => setIsModalOpen(false)}
                 onConfirm={proceedToPay}
 
             />
@@ -110,15 +118,22 @@ const MyCart = () => {
                         </table>
                     </div>
 
-                    <div className="text-right mt-6">
-                        <h3 className="text-xl font-semibold">
-                            Total: <span className="text-green-600">${calculateTotal()}</span>
-                        </h3>
-                        <button
-                            onClick={()=>setIsModalOpen(true)}
-                            className='px-3 py-1 mt-2 bg-green-600 active:scale-95 text-white'>
-                            Proceed To Pay
+                    <div className="flex justify-between mt-6">
+                        <button 
+                            onClick={()=>emptyCart()}
+                            className='px-3 py-1 mt-2 bg-red-600 active:scale-95 text-white'>
+                            clear carts 
                         </button>
+                        <>
+                            <h3 className="text-xl font-semibold">
+                                Total: <span className="text-green-600">${calculateTotal()}</span>
+                            </h3>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className='px-3 py-1 mt-2 bg-green-600 active:scale-95 text-white'>
+                                Proceed To Pay
+                            </button>
+                        </>
                     </div>
                 </>
             )}

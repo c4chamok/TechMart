@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { FaLaptop, FaBoxes, FaDollarSign, FaCartPlus, FaShoppingCart } from "react-icons/fa";
 import { useCartStore } from "../../Store/useCartStore";
-import States from "../../Store/states";
+import useZustStates from "../../Store/useZustStates";
 
 const ProductCard = ({ product }) => {
     const [cartCount, setCartCount] = useState(0);
-    const { addToCart, cart } = States();
+    const { addToCart, cart } = useZustStates();
     const inCart = cart.filter((existing) => existing.prodId === product?._id)[0];
 
     const handleAddToCart = () => {

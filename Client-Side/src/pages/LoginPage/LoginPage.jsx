@@ -37,7 +37,7 @@ const LoginPage = () => {
                 <div className='flex flex-col gap-1 w-[25%] mx-auto'>
                     <input type="text" name="email" placeholder='Enter email' />
                     <input type="text" name="password" placeholder='Enter password' />
-                    <button className='p-3 border' type='submit'>Register</button>
+                    <button className='p-3 border' type='submit'>Login</button>
                 </div>
             </form>
         </div>

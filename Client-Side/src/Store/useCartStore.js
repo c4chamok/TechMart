@@ -14,5 +14,10 @@ export const useCartStore = create((set) => ({
 
         // If not in cart, add new item
         return { cart: [...state.cart, payload] }
+    }),
+    emptyCart: ()=>set({cart: []}),
+    removeItems: (payload)=>set((state) => {
+        const newItems = state.cart.filter(item => !payload.includes(item.prodId));
+        return newItems;
     })
 }))

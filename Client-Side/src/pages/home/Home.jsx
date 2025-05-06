@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
 import ProductCard from '../../components/ProductCard/ProductCard';
-import States from '../../Store/states';
+import useZustStates from '../../Store/useZustStates';
 
 const Home = () => {
     const [allProducts, setAllProducts] = useState([]);
     const axiosPublic = useAxiosPublic();
-    const { cart } = States();
+    const { cart } = useZustStates();
     console.log(cart);
 
     const fetchAllProducts = async () => {

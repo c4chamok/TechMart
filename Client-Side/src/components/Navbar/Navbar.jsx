@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { FaUserCircle, FaSignInAlt, FaSignOutAlt, FaUserPlus, FaClipboardList, FaTachometerAlt } from "react-icons/fa";
 import { Link, Links } from "react-router";
-import States from "../../Store/states";
+import useZustStates from "../../Store/useZustStates";
 
 const Navbar = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const { cart } = States();
+    const { cart } = useZustStates();
     const menuRef = useRef(null);
 
     const totalCartCount = cart.reduce((total, item) => item.qty + total, 0);
