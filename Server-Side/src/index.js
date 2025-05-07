@@ -63,7 +63,7 @@ app.post("/api/login", async (req, res) => {
     }
 
     const token = jwt.sign({ userId: theUser._id }, "dsf454sd5f-45ds4f4dsf12c-5fd4awdf1", { expiresIn: '5h' });
-    res.status(201).send({ success: true, message: "new user created", token });
+    res.status(201).send({ success: true, message: "Login Successful", token });
 })
 
 app.post("/api/product", async (req, res) => {
@@ -74,7 +74,7 @@ app.post("/api/product", async (req, res) => {
 })
 
 app.get("/api/product", async (req, res) => {
-    const { pid, size=10, page=0, searchText } = req.query;
+    const { pid, size=10, page=1, searchText } = req.query;
 
     if(!!pid){
         const product = await ProductModel.findOne({ _id: pid }).select({ createdAt: 0, updatedAt: 0, __v: 0 });
@@ -84,7 +84,7 @@ app.get("/api/product", async (req, res) => {
 
     const pipeline = [
         {
-            $skip: (page-1)*(size*1)
+            $skip: ((page*1)-1)*(size*1)
         },
         {
             $limit: size*1
@@ -156,8 +156,63 @@ app.post("/api/make-order", verifyToken, async (req, res) => {
 })
 
 app.get("/api/orders", async (req, res)=>{
-    const populatedOrder = await OrderModel.find().populate("customer").select({password: 0}).exec();
-    res.status(200).json({success: true, orders: populatedOrder});
+    const { pid, size=10, page=1, searchText } = req.query; 
+    // const query = searchText ? {  }: {};
+    // const populatedOrder = await OrderModel.find().skip(size*(page-1)).limit(size).populate("customer").select({password: 0}).exec();
+    const pipeline = [
+        {
+            $addFields: {
+                customerId: { $toObjectId: "$customerId" },
+            },
+        },    
+        {
+            $lookup: {
+                from: "users",
+                localField: "customerId",
+                foreignField: "_id",
+                as: "customer",
+            },
+        },
+        {
+            $unwind: "$customer",
+        },
+        {
+            $project: {
+                "customer._id": 0,
+                "customer.password": 0,
+                "customer.__v": 0,
+                __v: 0,
+                createdAt: 0, updatedAt: 0
+            },
+        }
+    ]
+
+    if(searchText){
+        pipeline.push({
+            $match: { 
+                // $or: [
+                    "customer.name": { $regex: searchText, $options: 'i' }
+                    // { description: { $regex: searchText, $options: 'i' } },
+                // ]
+             }
+        },
+        {
+            $skip: ((page*1)-1)*(size*1)
+        },
+        {
+            $limit: size*1
+        });
+    }else{
+        pipeline.unshift({
+            $skip: ((page*1)-1)*(size*1)
+        },
+        {
+            $limit: size*1
+        })
+    }
+
+    const allOrders = await OrderModel.aggregate(pipeline);
+    res.status(200).json({success: true, orders: allOrders});
 })
 
 app.get("/api/total", async (req, res)=>{

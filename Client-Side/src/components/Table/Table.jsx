@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-const TableComponent = ({ data, removedHeaders = [] }) => {
+const TableComponent = ({ data, removedHeaders = [], dataPerpage , currentPage = 1,  }) => {
 
   if (!data?.length) return <h2 className="text-3xl">No data found</h2>;
 
@@ -26,7 +26,7 @@ const TableComponent = ({ data, removedHeaders = [] }) => {
         <tbody>
           {data.map((row, idx) => (
             <tr key={row.id} className="hover:bg-gray-50 border-b">
-              <td className="px-6 py-4">{idx + 1}</td>
+              <td className="px-6 py-4">{(idx + (dataPerpage? dataPerpage*(currentPage-1) : 0) ) + 1}</td>
               {
                 tableHeaders.map((dataKey) => {
                   if (!defaultRemovedHeaders.includes(dataKey)) {

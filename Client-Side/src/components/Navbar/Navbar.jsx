@@ -15,7 +15,8 @@ const Navbar = () => {
     };
 
     const handleClickOutside = (event) => {
-        if (dropdownOpen && menuRef.current && !menuRef.current.contains(event.target)) {
+        if ( menuRef.current && !menuRef.current.contains(event.target)) {
+            console.log("outside");
             setDropdownOpen(false);
         }
     };

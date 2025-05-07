@@ -4,9 +4,9 @@ import Sidebar from '../../components/sidebar/sidebar';
 
 const DashboardLayouts = () => {
     return (
-        <div className='w-full h-screen overflow-hidden flex'>
+        <div className='w-full h-screen flex'>
             <Sidebar/>
-            <div className="overflow-y-scroll w-full">
+            <div className="w-full overflow-y-auto">
                 <Outlet />
             </div>   
         </div>
