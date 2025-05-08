@@ -14,7 +14,7 @@ const ProductCard = ({ product }) => {
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-md p-5 max-w-sm w-full border hover:shadow-lg transition flex flex-col justify-between">
+        <div className="bg-white rounded-xl shadow-md p-5 w-full border hover:shadow-lg transition flex flex-col justify-between">
             {/* Header */}
             <div>
                 <div className="flex items-center gap-3 mb-4 text-blue-600">

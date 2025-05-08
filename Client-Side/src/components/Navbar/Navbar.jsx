@@ -5,7 +5,7 @@ import useZustStates from "../../Store/useZustStates";
 
 const Navbar = () => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
-    const { cart } = useZustStates();
+    const { cart, logOutUser, user } = useZustStates();
     const menuRef = useRef(null);
 
     const totalCartCount = cart.reduce((total, item) => item.qty + total, 0);
@@ -15,7 +15,7 @@ const Navbar = () => {
     };
 
     const handleClickOutside = (event) => {
-        if ( menuRef.current && !menuRef.current.contains(event.target)) {
+        if (menuRef.current && !menuRef.current.contains(event.target)) {
             console.log("outside");
             setDropdownOpen(false);
         }
@@ -54,28 +54,44 @@ const Navbar = () => {
                         className="flex items-center gap-2 text-gray-700 hover:text-blue-600 focus:outline-none"
                     >
                         <FaUserCircle className="text-2xl" />
-                        <span className="hidden sm:inline">Account</span>
+                        <span className="hidden sm:inline">{user?.name ? user?.name : "Account"}</span>
                     </button>
 
                     {/* Dropdown */}
                     {dropdownOpen && (
                         <div className="absolute right-0 mt-2 w-48 bg-white border rounded-lg shadow-lg z-50">
-                            <Link to={"/login"} className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
-                                <FaSignInAlt /> Login
-                            </Link>
-                            <Link to={"/signup"} className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
-                                <FaUserPlus /> Register
-                            </Link>
-                            <Link to={"/"} className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
-                                <FaClipboardList /> My Orders
-                            </Link>
-                            <Link to={"/dashboard"} className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
-                                <FaTachometerAlt /> Dashboard
-                            </Link>
-                            <hr />
-                            <Link className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-sm text-red-600">
-                                <FaSignOutAlt /> Logout
-                            </Link>
+                            {!user ?
+                                <>
+                                    <Link
+                                        to={"/login"}
+                                        className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
+                                        <FaSignInAlt /> Login
+                                    </Link>
+                                    <Link
+                                        to={"/signup"}
+                                        className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
+                                        <FaUserPlus /> Register
+                                    </Link>
+                                </>
+                                :
+                                <>
+                                    <Link
+                                        to={"/my-orders"}
+                                        className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
+                                        <FaClipboardList /> My Orders
+                                    </Link>
+                                    <Link
+                                        to={"/dashboard"}
+                                        className="w-full flex items-center gap-2 px-4 py-2 hover:bg-gray-100 text-sm text-gray-700">
+                                        <FaTachometerAlt /> Dashboard
+                                    </Link>
+                                    <hr />
+                                    <button
+                                        onClick={logOutUser}
+                                        className="w-full flex items-center gap-2 px-4 py-2 hover:bg-red-50 text-sm text-red-600">
+                                        <FaSignOutAlt /> Logout
+                                    </button>
+                                </>}
                         </div>
                     )}
                 </div>

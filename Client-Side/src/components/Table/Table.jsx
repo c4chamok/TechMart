@@ -14,9 +14,9 @@ const TableComponent = ({ data, removedHeaders = [], dataPerpage , currentPage =
           <tr>
             <th className="px-6 py-3">idx</th>
             {
-              tableHeaders.map((dataKey) => {
+              tableHeaders.map((dataKey, idx) => {
                 if (!defaultRemovedHeaders.includes(dataKey)) {
-                  return (<th className="px-6 py-3">{dataKey}</th>)
+                  return (<th key={idx} className="px-6 py-3">{dataKey}</th>)
                 }
               })
             }
@@ -25,12 +25,12 @@ const TableComponent = ({ data, removedHeaders = [], dataPerpage , currentPage =
         </thead>
         <tbody>
           {data.map((row, idx) => (
-            <tr key={row.id} className="hover:bg-gray-50 border-b">
+            <tr key={row?._id} className="hover:bg-gray-50 border-b">
               <td className="px-6 py-4">{(idx + (dataPerpage? dataPerpage*(currentPage-1) : 0) ) + 1}</td>
               {
-                tableHeaders.map((dataKey) => {
+                tableHeaders.map((dataKey, idx) => {
                   if (!defaultRemovedHeaders.includes(dataKey)) {
-                    return (<td className="px-6 py-4">{row[dataKey]}</td>)
+                    return (<td key={idx} className="px-6 py-4">{row[dataKey]}</td>)
                   }
                 })
               }

@@ -1,10 +1,11 @@
 import React from 'react';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
-// import { useNavigate } from 'react-router';
 import { toast } from 'react-toastify';
+import useZustStates from '../../Store/useZustStates';
 
 const LoginPage = () => {
     const axiosPublic = useAxiosPublic();
+    const { user, isLoading, getUser } = useZustStates();
     // const navigate = useNavigate();
 
     const handleSignUp = async (e) => {
@@ -22,6 +23,8 @@ const LoginPage = () => {
                     position: "top-right"
                 })
                 localStorage.setItem("access-token", data?.token);
+                localStorage.setItem("isLoggedIn", true);
+                getUser();
             }
         } catch (error) {
             // console.log();

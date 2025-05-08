@@ -6,6 +6,7 @@ import useAxiosPublic from "../../hooks/useAxiosPublic";
 import { toast } from "react-toastify";
 import Paginator from "../../components/Paginator/Paginator";
 import SearchBar from "../../components/searchBar/searchBar";
+import LoadingComponent from "../../components/LoadingComponent/LoadingComponent";
 
 const ProductsPage = () => {
   const axiosPublic = useAxiosPublic();
@@ -14,6 +15,8 @@ const ProductsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [productsCount, setProductsCount] = useState(0);
   const [searchText, setSearchText] = useState("");
+  const [loading, setLoading] = useState(false);
+
   const dataPerPage = 10;
 
   useEffect(() => {
@@ -37,8 +40,9 @@ const ProductsPage = () => {
   });
 
   const fetchAllProducts = async () => {
+    setLoading(true);
     const { data } = await axiosPublic(`/api/product?page=${currentPage}&size=${dataPerPage}&searchText=${searchText}`);
-    console.log(data);
+    setLoading(false);
     setTableData(data?.products);
   }
 
@@ -48,14 +52,13 @@ const ProductsPage = () => {
 
 
   const handleAddOrEditProduct = async (product) => {
-    // console.log("Product added:", product);
+    setLoading(true);
     const { data } = await axiosPublic.post("/api/product", { ...product });
     if (data?.success) {
       toast.success(data?.messages, { position: "top-right" });
       fetchAllProducts();
     }
   };
-
 
   return (
     <div className="m-5 flex justify-center items-center">
@@ -74,7 +77,10 @@ const ProductsPage = () => {
         </div>
 
         <div className="mt-7">
-          <TableComponent data={TableData} dataPerpage={dataPerPage} currentPage={currentPage} />
+          {
+            loading ? <LoadingComponent /> :
+              <TableComponent data={TableData} dataPerpage={dataPerPage} currentPage={currentPage} />
+          }
         </div>
 
         <Paginator currentPage={currentPage} onPageChange={handlePageChange} totalPages={totalPages} />

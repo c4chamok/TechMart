@@ -3,6 +3,7 @@ import useAxiosPublic from '../../hooks/useAxiosPublic';
 import TableComponent from '../../components/Table/Table';
 import Paginator from '../../components/Paginator/Paginator';
 import SearchBar from '../../components/searchBar/searchBar';
+import LoadingComponent from '../../components/LoadingComponent/LoadingComponent';
 
 const OrdersPage = () => {
     const axiosPublic = useAxiosPublic();
@@ -10,6 +11,7 @@ const OrdersPage = () => {
     const [ordersCount, setOrdersCount] = useState(0);
     const [currentPage, setCurrentPage] = useState(1);
     const [searchText, setSearchText] = useState("");
+    const [loading, setLoading] = useState(false);
     const dataPerPage = 10;
 
     useEffect(() => {
@@ -26,19 +28,26 @@ const OrdersPage = () => {
     };
 
     const getAllOrders = async () => {
-        const { data } = await axiosPublic(`/api/orders?size=${dataPerPage}&page=${currentPage}&searchText=${searchText}`);
+        setLoading(true);
+        const token = localStorage.getItem("access-token");
+        const { data } = await axiosPublic(`/api/orders?size=${dataPerPage}&page=${currentPage}&searchText=${searchText}`, {
+            headers: { authorization: `bearer ${token}` },
+        });
 
         const unWindedData = data.orders.map((order) => {
-            const { customer, ...remained } = order;
-            return { ...remained, customer_Name: customer.name, customer_Email: customer.email }
+            const { customer, total, ...remained } = order;
+            console.log(total);
+            return { ...remained, customer_Name: customer.name, customer_Email: customer.email, total }
         })
-
+        setLoading(false);
         setAllOrders(unWindedData);
     }
 
     useEffect(() => {
         getAllOrders();
     }, [currentPage, searchText])
+
+
 
     return (
         <div className="m-5 flex justify-center items-center">
@@ -50,7 +59,10 @@ const OrdersPage = () => {
                     <SearchBar onSearch={(inputText) => setSearchText(inputText)} />
                 </div>
                 <div className="mt-7">
-                    <TableComponent data={allOrders} removedHeaders={["customer"]} />
+                    {
+                        loading ? <LoadingComponent /> :
+                            <TableComponent data={allOrders} removedHeaders={["customer"]} />
+                    }
                 </div>
                 <Paginator currentPage={currentPage} onPageChange={handlePageChange} totalPages={totalPages} />
             </div>

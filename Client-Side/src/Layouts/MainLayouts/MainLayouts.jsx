@@ -3,6 +3,7 @@ import Navbar from '../../components/Navbar/Navbar';
 import { Outlet } from 'react-router';
 
 const MainLayouts = () => {
+
     return (
         <div>
             <Navbar/>

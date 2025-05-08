@@ -42,7 +42,7 @@ const MyCart = () => {
     };
 
     const proceedToPay = async () => {
-        const token = localStorage.getItem("access-token")
+        const token = localStorage.getItem("access-token");
         const { data } = await axiosPublic.post("/api/make-order", { cart }, { headers: { authorization: `bearer ${token}` } });
         emptyCart();
         toast.success("Payment successful", { position: "top-right" })

@@ -1,6 +1,6 @@
 import express from "express"
 import cors from "cors"
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import { UserModel } from "./Models/usersModel.js";
@@ -27,7 +27,7 @@ const verifyToken = (req, res, next) => {
     if (!req.headers.authorization) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
-    const token = req.headers.authorization.split(' ')[1]; 
+    const token = req.headers.authorization.split(' ')[1];
     jwt.verify(token, "dsf454sd5f-45ds4f4dsf12c-5fd4awdf1", (err, decoded) => {
         if (err) {
             return res.status(401).json({ message: 'Unauthorized' });
@@ -66,6 +66,17 @@ app.post("/api/login", async (req, res) => {
     res.status(201).send({ success: true, message: "Login Successful", token });
 })
 
+app.get("/api/profile", verifyToken, async (req, res) => {
+    const { userId } = req.user;
+    const theUser = await UserModel.findById(userId);
+
+    if (!theUser) {
+        res.send({ success: false, message: "User Not Found" });
+        return;
+    }
+    res.send({ success: true, profile: theUser });
+})
+
 app.post("/api/product", async (req, res) => {
     const { name, description, price, stock } = req.body;
     const newProduct = new ProductModel({ name, description, price, stock });
@@ -74,40 +85,42 @@ app.post("/api/product", async (req, res) => {
 })
 
 app.get("/api/product", async (req, res) => {
-    const { pid, size=10, page=1, searchText } = req.query;
+    const { pid, size = 10, page = 1, searchText } = req.query;
 
-    if(!!pid){
+    if (!!pid) {
         const product = await ProductModel.findOne({ _id: pid }).select({ createdAt: 0, updatedAt: 0, __v: 0 });
         res.status(201).send({ success: true, product });
         return;
     }
 
+    const totalProductsCount = await mongoose.model("Product").estimatedDocumentCount();
+
     const pipeline = [
         {
-            $skip: ((page*1)-1)*(size*1)
+            $skip: ((page * 1) - 1) * (size * 1)
         },
         {
-            $limit: size*1
+            $limit: size * 1
         },
         {
             $project: { createdAt: 0, updatedAt: 0, __v: 0 }
         },
-        
+
     ];
 
-    if(searchText){
+    if (searchText) {
         pipeline.unshift({
-            $match: { 
+            $match: {
                 $or: [
                     { name: { $regex: searchText, $options: 'i' } },
                     { description: { $regex: searchText, $options: 'i' } },
                 ]
-             }
+            }
         });
     }
 
     const products = await ProductModel.aggregate(pipeline);
-    res.status(201).send({ success: true, products });
+    res.status(201).send({ success: true, totalProductsCount, products });
 });
 
 app.post("/api/selected-products", async (req, res) => {
@@ -125,11 +138,11 @@ app.post("/api/make-order", verifyToken, async (req, res) => {
     const pidList = cart.map((item) => item.prodId);
     const query = { _id: { $in: pidList } };
     const products = await ProductModel.find(query).select({ _id: 1, name: 1, price: 1, stcock: 1 });
-    
+
     let payTotal = 0;
-    products.forEach(product=>{
+    products.forEach(product => {
         const productInCart = cart.find(c => c.prodId == product._id.toString());
-        if(productInCart){
+        if (productInCart) {
             payTotal += product?.price * productInCart.qty;
         }
 
@@ -155,8 +168,9 @@ app.post("/api/make-order", verifyToken, async (req, res) => {
     res.status(201).send({ success: true, orderDetail: populatedOrder });
 })
 
-app.get("/api/orders", async (req, res)=>{
-    const { pid, size=10, page=1, searchText } = req.query; 
+app.get("/api/orders", verifyToken, async (req, res) => {
+    const { userId, size = 10, page = 1, searchText } = req.query;
+    // const { userId } = req.user;
     // const query = searchText ? {  }: {};
     // const populatedOrder = await OrderModel.find().skip(size*(page-1)).limit(size).populate("customer").select({password: 0}).exec();
     const pipeline = [
@@ -164,7 +178,7 @@ app.get("/api/orders", async (req, res)=>{
             $addFields: {
                 customerId: { $toObjectId: "$customerId" },
             },
-        },    
+        },
         {
             $lookup: {
                 from: "users",
@@ -187,38 +201,46 @@ app.get("/api/orders", async (req, res)=>{
         }
     ]
 
-    if(searchText){
-        pipeline.push({
-            $match: { 
-                // $or: [
-                    "customer.name": { $regex: searchText, $options: 'i' }
-                    // { description: { $regex: searchText, $options: 'i' } },
-                // ]
-             }
-        },
-        {
-            $skip: ((page*1)-1)*(size*1)
-        },
-        {
-            $limit: size*1
-        });
-    }else{
+    if(userId){
         pipeline.unshift({
-            $skip: ((page*1)-1)*(size*1)
-        },
-        {
-            $limit: size*1
+            $match: {
+                customerId: new mongoose.Types.ObjectId(userId)
+            }
         })
     }
 
+    if (searchText) {
+        pipeline.push({
+            $match: {
+                // $or: [
+                "customer.name": { $regex: searchText, $options: 'i' }
+                // { description: { $regex: searchText, $options: 'i' } },
+                // ]
+            }
+        },
+            {
+                $skip: ((page * 1) - 1) * (size * 1)
+            },
+            {
+                $limit: size * 1
+            });
+    } else {
+        pipeline.unshift({
+            $skip: ((page * 1) - 1) * (size * 1)
+        },
+            {
+                $limit: size * 1
+            })
+    }
+
     const allOrders = await OrderModel.aggregate(pipeline);
-    res.status(200).json({success: true, orders: allOrders});
+    res.status(200).json({ success: true, orders: allOrders });
 })
 
-app.get("/api/total", async (req, res)=>{
+app.get("/api/total", async (req, res) => {
     const { table } = req.query;
-    const size  = await mongoose.model(table).estimatedDocumentCount();
-    res.send({success: true, info: { table, size }}) 
+    const size = await mongoose.model(table).estimatedDocumentCount();
+    res.send({ success: true, info: { table, size } })
 })
 
 app.get("/api/seedproduct", async (req, res) => {

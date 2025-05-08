@@ -7,6 +7,8 @@ import ProductsPage from "../pages/ProductsPage/ProductsPage";
 import MainLayouts from "../Layouts/MainLayouts/MainLayouts";
 import MyCart from "../pages/MyCart/MyCart";
 import OrdersPage from "../pages/OrdersPage/OrdersPage";
+import MyOrdersPage from "../pages/MyOrdersPage/MyOrdersPage";
+import ProtectedRoute from "./protectedRoute";
 
 export const router = createBrowserRouter([
     {
@@ -29,11 +31,15 @@ export const router = createBrowserRouter([
                 path: "my-cart",
                 element: <MyCart/>
             },
+            {
+                path: "my-orders",
+                element: <ProtectedRoute children={<MyOrdersPage/>}/>
+            },
         ]
     },
     {
         path: "dashboard",
-        element: <DashboardLayouts/>,
+        element: <ProtectedRoute children={<DashboardLayouts/>}/> ,
         children:[
             {
                 path: '',

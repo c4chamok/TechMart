@@ -1,32 +1,52 @@
 import React, { useEffect, useState } from 'react';
 import useAxiosPublic from '../../hooks/useAxiosPublic';
 import ProductCard from '../../components/ProductCard/ProductCard';
-import useZustStates from '../../Store/useZustStates';
+import LoadingComponent from '../../components/LoadingComponent/LoadingComponent';
+import Paginator from '../../components/Paginator/Paginator';
 
 const Home = () => {
-    const [allProducts, setAllProducts] = useState([]);
     const axiosPublic = useAxiosPublic();
-    const { cart } = useZustStates();
-    console.log(cart);
+    const [allProducts, setAllProducts] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [productsCount, setProductsCount] = useState(0);
+    const dataPerPage = 10;
 
-    const fetchAllProducts = async () => {
-        const { data } = await axiosPublic("/api/product");
-        console.log(data);
-        setAllProducts(data?.products);
-      }
+    const totalPages = Math.ceil(productsCount / dataPerPage);
     
-    useEffect(()=>{
+    const fetchAllProducts = async () => {
+        setLoading(true);
+        const { data } = await axiosPublic(`/api/product?page=${currentPage}&size=${dataPerPage}`);
+        setLoading(false);
+        setAllProducts(data?.products);
+        setProductsCount(data?.totalProductsCount)
+    }
+
+    const handlePageChange = (newPage) => {
+        if (newPage >= 1 && newPage <= totalPages) {
+          setCurrentPage(newPage);
+        }
+      };
+
+
+    useEffect(() => {
         fetchAllProducts();
-    },[]);
+    }, [currentPage]);
+
+    if (loading) return <LoadingComponent />
 
     return (
-        <div className='flex flex-col items-center '>
-           <div className='m-3 w-3/4 grid grid-cols-3 gap-2'>
+        <div className="flex flex-col items-center px-4 my-10">
+            <div className="w-11/12 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {
-                    allProducts.map((prod, idx)=><ProductCard key={idx} product={prod}/>)
+                    allProducts.map((prod, idx) => (
+                        <ProductCard key={idx} product={prod} />
+                    ))
                 }
-           </div>
+            </div>
+            <Paginator currentPage={currentPage} totalPages={totalPages} onPageChange={handlePageChange}/>
         </div>
+
     );
 };
 

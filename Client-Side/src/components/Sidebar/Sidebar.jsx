@@ -8,7 +8,7 @@ const Sidebar = () => {
     <div className="min-w-[15%] flex flex-col bg-slate-700">
       <div className="h-40"></div>
       <div className=" flex flex-col w-full">
-        <NavLink
+        {/* <NavLink
           to="stats"
           className={({ isActive }) =>
             `pl-3 h-10 flex items-center text-white font-bold ${
@@ -27,7 +27,7 @@ const Sidebar = () => {
           }
         >
           Users
-        </NavLink>
+        </NavLink> */}
         <NavLink
           to="products"
           className={({ isActive }) =>
