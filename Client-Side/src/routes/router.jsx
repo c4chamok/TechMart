@@ -43,7 +43,7 @@ export const router = createBrowserRouter([
         children:[
             {
                 path: '',
-                element: <Navigate to={'stats'}/>
+                element: <Navigate to={'products'}/>
             },
             {
                 path:"stats",

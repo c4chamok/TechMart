@@ -12,6 +12,8 @@ const Home = () => {
     const [productsCount, setProductsCount] = useState(0);
     const dataPerPage = 10;
 
+    console.log(allProducts);
+
     const totalPages = Math.ceil(productsCount / dataPerPage);
     
     const fetchAllProducts = async () => {

@@ -11,7 +11,7 @@ export const useUserStore = create((set) => ({
         try {
             if(isLogged !== "true") return;
             const token = localStorage.getItem("access-token");
-            const { data } = await axios("http://localhost:5000/api/profile", {
+            const { data } = await axios(`${import.meta.env.VITE_baseURL}/api/profile`, {
                 headers: { authorization: `bearer ${token}` },
             });
             set({ user: data?.profile, isUserLoading: false });
